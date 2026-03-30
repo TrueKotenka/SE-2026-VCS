@@ -1,9 +1,8 @@
 package ru.hse.cli.commands;
 
-import ru.hse.core.IndexManager;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import ru.hse.core.IndexManager;
 
 public class AddCommand implements Command {
     private final IndexManager indexManager;

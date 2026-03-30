@@ -20,8 +20,10 @@ public record Blob(byte[] content) implements VcsObject {
     // Переопределяем toString, equals и hashCode для корректной работы с массивами
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         Blob blob = (Blob) o;
         return Arrays.equals(content, blob.content);
     }

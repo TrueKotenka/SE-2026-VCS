@@ -8,9 +8,7 @@ import java.nio.file.Paths;
 
 public class RepositoryManager {
 
-    /**
-     * Инициализирует пустой репозиторий в указанной директории.
-     */
+    /** Инициализирует пустой репозиторий в указанной директории. */
     public static void init(String targetPath) throws IOException {
         Path repoRoot = Paths.get(targetPath).toAbsolutePath().normalize();
         Path vcsDir = repoRoot.resolve(".myvcs");

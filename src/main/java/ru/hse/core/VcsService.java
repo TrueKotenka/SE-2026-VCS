@@ -1,13 +1,12 @@
 package ru.hse.core;
 
-import ru.hse.model.*;
-import ru.hse.storage.ObjectStorage;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
+import ru.hse.model.*;
+import ru.hse.storage.ObjectStorage;
 
 public class VcsService {
 
@@ -21,9 +20,7 @@ public class VcsService {
         this.referenceManager = referenceManager;
     }
 
-    /**
-     * Выполняет коммит текущего состояния индекса.
-     */
+    /** Выполняет коммит текущего состояния индекса. */
     public String commit(String message, String author) throws IOException {
         indexManager.load();
         Map<String, String> indexEntries = indexManager.getEntries();
@@ -43,13 +40,7 @@ public class VcsService {
         }
 
         // 3. Создаем и сохраняем сам объект коммита
-        Commit commit = new Commit(
-                rootTreeHash,
-                parentHashes,
-                author,
-                Instant.now(),
-                message
-        );
+        Commit commit = new Commit(rootTreeHash, parentHashes, author, Instant.now(), message);
         String commitHash = storage.save(commit);
 
         // 4. Сдвигаем указатель текущей ветки на новый коммит!
@@ -64,9 +55,7 @@ public class VcsService {
 
     // --- Логика построения дерева ---
 
-    /**
-     * Вспомогательный класс для построения графа директорий в памяти.
-     */
+    /** Вспомогательный класс для построения графа директорий в памяти. */
     private static class DirNode {
         // Имя файла -> Хеш блоба
         final Map<String, String> files = new TreeMap<>();
@@ -79,7 +68,7 @@ public class VcsService {
 
         // Шаг 1. Строим дерево директорий в оперативной памяти
         for (Map.Entry<String, String> entry : indexEntries.entrySet()) {
-            String path = entry.getKey();      // Например: "src/main/App.java"
+            String path = entry.getKey(); // Например: "src/main/App.java"
             String blobHash = entry.getValue();
 
             String[] parts = path.split("/");
@@ -126,7 +115,8 @@ public class VcsService {
         }
 
         // Git требует, чтобы записи в дереве были строго отсортированы по имени.
-        // TreeMap нам в этом частично помог, но смешанный список файлов и папок нужно отсортировать:
+        // TreeMap нам в этом частично помог, но смешанный список файлов и папок нужно
+        // отсортировать:
         treeEntries.sort(Comparator.comparing(Tree.TreeEntry::name));
 
         // Создаем объект Tree, сериализуем и сохраняем на диск
@@ -152,14 +142,16 @@ public class VcsService {
             VcsObject obj = ObjectParser.parse(rawData);
 
             if (!(obj instanceof Commit commit)) {
-                throw new IllegalStateException("Повреждение репозитория: объект " + currentHash + " не является коммитом!");
+                throw new IllegalStateException(
+                        "Повреждение репозитория: объект " + currentHash + " не является коммитом!");
             }
 
             // Добавляем в историю
             history.add(new CommitNode(currentHash, commit));
 
             // Переходим к родителю.
-            // Для простой команды log мы пока идем только по первой линии (первому родителю),
+            // Для простой команды log мы пока идем только по первой линии (первому
+            // родителю),
             // игнорируя боковые ветки слияний (merge).
             if (commit.parentHashes().isEmpty()) {
                 currentHash = null; // Мы дошли до самого первого (root) коммита
@@ -172,7 +164,8 @@ public class VcsService {
     }
 
     /**
-     * Восстанавливает состояние файлов из указанной ревизии (имя ветки или хеш коммита).
+     * Восстанавливает состояние файлов из указанной ревизии (имя ветки или хеш
+     * коммита).
      */
     public void checkout(String revision) throws IOException {
         // 1. Находим нужный коммит
@@ -186,7 +179,8 @@ public class VcsService {
 
         Commit commit = (Commit) ObjectParser.parse(rawData);
 
-        // 2. Очищаем рабочую директорию от старых файлов (удаляем только то, что есть в индексе)
+        // 2. Очищаем рабочую директорию от старых файлов (удаляем только то, что есть в
+        // индексе)
         indexManager.load();
         Path repoRoot = indexManager.getRepoRoot();
 
@@ -211,9 +205,13 @@ public class VcsService {
 
     /**
      * Рекурсивно обходит дерево и восстанавливает файлы на диск.
-     * @param treeHash хеш дерева для распаковки
-     * @param currentDir физический путь, куда распаковывать
-     * @param prefixPath префикс пути для записи в индекс (например, "src/main/")
+     *
+     * @param treeHash
+     *            хеш дерева для распаковки
+     * @param currentDir
+     *            физический путь, куда распаковывать
+     * @param prefixPath
+     *            префикс пути для записи в индекс (например, "src/main/")
      */
     private void unpackTree(String treeHash, Path currentDir, String prefixPath) throws IOException {
         if (!Files.exists(currentDir)) {

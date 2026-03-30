@@ -5,9 +5,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class HashUtils {
 
-    /**
-     * Вычисляет SHA-256 хеш от переданного массива байтов.
-     */
+    /** Вычисляет SHA-256 хеш от переданного массива байтов. */
     public static String sha256(byte[] data) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -18,9 +16,7 @@ public class HashUtils {
         }
     }
 
-    /**
-     * Конвертирует массив байтов в hex-строку.
-     */
+    /** Конвертирует массив байтов в hex-строку. */
     private static String bytesToHex(byte[] bytes) {
         StringBuilder hexString = new StringBuilder(2 * bytes.length);
         for (byte b : bytes) {

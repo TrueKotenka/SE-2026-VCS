@@ -4,12 +4,11 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 
-public record Commit(
-        String treeHash,             // Хеш корневого объекта Tree
-        List<String> parentHashes,   // Список хешей родительских коммитов
-        String author,               // Имя автора (например, "Kotenka <mail@example.com>")
-        Instant timestamp,           // Время создания
-        String message               // Сообщение коммита
+public record Commit(String treeHash, // Хеш корневого объекта Tree
+        List<String> parentHashes, // Список хешей родительских коммитов
+        String author, // Имя автора (например, "Kotenka <mail@example.com>")
+        Instant timestamp, // Время создания
+        String message // Сообщение коммита
 ) implements VcsObject {
 
     @Override
@@ -26,8 +25,7 @@ public record Commit(
             sb.append("parent ").append(parent).append("\n");
         }
 
-        sb.append("author ").append(author).append(" ")
-                .append(timestamp.getEpochSecond()).append("\n");
+        sb.append("author ").append(author).append(" ").append(timestamp.getEpochSecond()).append("\n");
         sb.append("\n"); // Пустая строка отделяет метаданные от сообщения
         sb.append(message).append("\n");
 

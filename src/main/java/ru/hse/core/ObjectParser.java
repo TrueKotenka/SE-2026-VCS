@@ -1,15 +1,14 @@
 package ru.hse.core;
 
-import ru.hse.model.Blob;
-import ru.hse.model.Commit;
-import ru.hse.model.Tree;
-import ru.hse.model.VcsObject;
-
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import ru.hse.model.Blob;
+import ru.hse.model.Commit;
+import ru.hse.model.Tree;
+import ru.hse.model.VcsObject;
 
 public class ObjectParser {
 
@@ -59,7 +58,8 @@ public class ObjectParser {
         if (!treeStr.isEmpty()) {
             String[] lines = treeStr.split("\n");
             for (String line : lines) {
-                if (line.isEmpty()) continue;
+                if (line.isEmpty())
+                    continue;
 
                 // Формат строки: mode type hash\tname
                 int tabIndex = line.indexOf('\t');

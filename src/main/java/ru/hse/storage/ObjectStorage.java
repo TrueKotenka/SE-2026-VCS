@@ -1,7 +1,5 @@
 package ru.hse.storage;
 
-import ru.hse.model.VcsObject;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
+import ru.hse.model.VcsObject;
 
 public class ObjectStorage {
 
@@ -21,9 +20,7 @@ public class ObjectStorage {
         this.repoPath = Paths.get(repoPathStr, ".myvcs");
     }
 
-    /**
-     * Сохраняет VcsObject в базу данных объектов и возвращает его SHA-256 хеш.
-     */
+    /** Сохраняет VcsObject в базу данных объектов и возвращает его SHA-256 хеш. */
     public String save(VcsObject vcsObject) throws IOException {
         // 1. Получаем байтовое представление объекта
         byte[] data = vcsObject.serialize();
@@ -54,7 +51,7 @@ public class ObjectStorage {
 
         // 5. Записываем данные с использованием Zlib компрессии
         try (OutputStream os = Files.newOutputStream(objectPath);
-             DeflaterOutputStream dos = new DeflaterOutputStream(os)) {
+                DeflaterOutputStream dos = new DeflaterOutputStream(os)) {
             dos.write(fullData);
         }
 
@@ -62,8 +59,8 @@ public class ObjectStorage {
     }
 
     /**
-     * Читает и распаковывает сырые байты объекта по его хешу.
-     * Парсинг в конкретный класс (Blob, Tree, Commit) будет выполняться на уровне бизнес-логики.
+     * Читает и распаковывает сырые байты объекта по его хешу. Парсинг в конкретный
+     * класс (Blob, Tree, Commit) будет выполняться на уровне бизнес-логики.
      */
     public byte[] loadRaw(String hash) throws IOException {
         String dirName = hash.substring(0, 2);
@@ -76,8 +73,8 @@ public class ObjectStorage {
 
         // Читаем и распаковываем данные (InflaterInputStream)
         try (InputStream is = Files.newInputStream(objectPath);
-             InflaterInputStream iis = new InflaterInputStream(is);
-             ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                InflaterInputStream iis = new InflaterInputStream(is);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 
             byte[] buffer = new byte[1024];
             int len;
