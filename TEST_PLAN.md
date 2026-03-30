@@ -36,13 +36,6 @@
 - `ObjectParserTest`;
 - `ObjectStorageAndHashUtilsTest`.
 
-План расширения:
-
-- `ReferenceManagerTest`;
-- `RepositoryManagerTest`;
-- `IndexManagerTest`;
-- часть атомарных сценариев `VcsService` (без full e2e).
-
 ### 3.2 Integration tests
 
 Проверяют взаимодействие core + storage + fs на временной директории:
@@ -126,11 +119,4 @@
 - выбрать job из workflow `CI` как required.
 
 Итог: если тесты/сборка не проходят, merge блокируется.
-
-## 8. План ближайших задач по тестам
-
-1. Добавить `ReferenceManagerTest` (HEAD/branch/detached/resolve/list/delete/create).
-2. Добавить `RepositoryManagerTest` (инициализация/повторная инициализация).
-3. Добавить `IndexManagerTest` (add/load/save/clear/ignore `.myvcs`).
-4. Добавить integration сценарии для merge (FF + конфликт).
 
