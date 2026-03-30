@@ -150,7 +150,8 @@ public class ReferenceManager {
      */
     public String getActiveBranch() throws IOException {
         Path headPath = vcsDir.resolve("HEAD");
-        if (!Files.exists(headPath)) return null;
+        if (!Files.exists(headPath))
+            return null;
 
         String headContent = Files.readString(headPath, StandardCharsets.UTF_8).trim();
         if (headContent.startsWith("ref: refs/heads/")) {

@@ -48,11 +48,13 @@ public class MergeResolver {
     }
 
     /**
-     * Разворачивает корневое дерево коммита в плоскую мапу: "относительный путь" -> "хеш файла".
+     * Разворачивает корневое дерево коммита в плоскую мапу: "относительный путь" ->
+     * "хеш файла".
      */
     public Map<String, String> getCommitState(String commitHash) throws IOException {
         Map<String, String> state = new TreeMap<>();
-        if (commitHash == null) return state;
+        if (commitHash == null)
+            return state;
 
         Commit commit = (Commit) ObjectParser.parse(storage.loadRaw(commitHash));
         collectFiles(commit.treeHash(), "", state);

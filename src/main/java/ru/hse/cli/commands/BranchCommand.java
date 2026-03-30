@@ -32,7 +32,8 @@ public class BranchCommand implements Command {
         if (args.length == 1) {
             String branchName = args[0];
 
-            // Простейшая валидация имени (запрещаем слэши и спецсимволы для безопасности ФС)
+            // Простейшая валидация имени (запрещаем слэши и спецсимволы для безопасности
+            // ФС)
             if (!branchName.matches("[a-zA-Z0-9_-]+")) {
                 System.err.println("Ошибка: имя ветки может содержать только буквы, цифры, '_' и '-'.");
                 return;
