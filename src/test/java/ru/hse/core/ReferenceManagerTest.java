@@ -37,7 +37,8 @@ class ReferenceManagerTest {
         referenceManager.updateCurrentBranch("abc123");
 
         assertEquals("abc123", referenceManager.getCurrentCommitHash());
-        assertEquals("abc123", Files.readString(tempDir.resolve(".myvcs/refs/heads/master"), StandardCharsets.UTF_8).trim());
+        assertEquals("abc123",
+                Files.readString(tempDir.resolve(".myvcs/refs/heads/master"), StandardCharsets.UTF_8).trim());
     }
 
     @Test
