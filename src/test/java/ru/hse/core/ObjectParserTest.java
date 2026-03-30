@@ -39,12 +39,8 @@ class ObjectParserTest {
 
     @Test
     void parseCommitObjectWithParentsAndMultilineMessage() {
-        Commit expected = new Commit(
-                "treehash",
-                List.of("p1", "p2"),
-                "Tester <t@t>",
-                Instant.ofEpochSecond(1_700_000_000L),
-                "line1\nline2");
+        Commit expected = new Commit("treehash", List.of("p1", "p2"), "Tester <t@t>",
+                Instant.ofEpochSecond(1_700_000_000L), "line1\nline2");
         byte[] raw = withHeader("commit", expected.serialize());
 
         VcsObject parsed = ObjectParser.parse(raw);

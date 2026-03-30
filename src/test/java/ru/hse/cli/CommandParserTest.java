@@ -37,7 +37,7 @@ class CommandParserTest {
         FakeVcsService vcsService = new FakeVcsService();
         CommandParser parser = new CommandParser(indexManager, vcsService);
 
-        IOResult io = captureIo(() -> parser.parseAndExecute(new String[] {"abracadabra"}));
+        IOResult io = captureIo(() -> parser.parseAndExecute(new String[]{"abracadabra"}));
 
         assertTrue(io.err.contains("Неизвестная команда: abracadabra"));
         assertTrue(io.out.contains("Доступные команды:"));
@@ -49,7 +49,7 @@ class CommandParserTest {
         FakeVcsService vcsService = new FakeVcsService();
         CommandParser parser = new CommandParser(indexManager, vcsService);
 
-        parser.parseAndExecute(new String[] {"add", "file1.txt", "dir/file2.txt"});
+        parser.parseAndExecute(new String[]{"add", "file1.txt", "dir/file2.txt"});
 
         assertEquals(1, indexManager.loadCalls);
         assertEquals(List.of("file1.txt", "dir/file2.txt"), indexManager.addedPaths);
@@ -61,7 +61,7 @@ class CommandParserTest {
         FakeVcsService vcsService = new FakeVcsService();
         CommandParser parser = new CommandParser(indexManager, vcsService);
 
-        parser.parseAndExecute(new String[] {"commit", "-m", "my message"});
+        parser.parseAndExecute(new String[]{"commit", "-m", "my message"});
 
         assertEquals(1, vcsService.commitCalls);
         assertEquals("my message", vcsService.lastCommitMessage);
@@ -73,7 +73,7 @@ class CommandParserTest {
         FakeVcsService vcsService = new FakeVcsService();
         CommandParser parser = new CommandParser(indexManager, vcsService);
 
-        parser.parseAndExecute(new String[] {"checkout", "master"});
+        parser.parseAndExecute(new String[]{"checkout", "master"});
 
         assertEquals(1, vcsService.checkoutCalls);
         assertEquals("master", vcsService.lastCheckoutRevision);

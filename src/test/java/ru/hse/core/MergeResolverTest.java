@@ -55,17 +55,12 @@ class MergeResolverTest {
 
         Tree srcTree = new Tree(List.of(new Tree.TreeEntry("100644", "blob", nestedHash, "Main.java")));
         String srcTreeHash = storage.save(srcTree);
-        Tree rootTree = new Tree(List.of(
-                new Tree.TreeEntry("100644", "blob", readmeHash, "README.md"),
+        Tree rootTree = new Tree(List.of(new Tree.TreeEntry("100644", "blob", readmeHash, "README.md"),
                 new Tree.TreeEntry("040000", "tree", srcTreeHash, "src")));
         String rootTreeHash = storage.save(rootTree);
 
-        String commitHash = storage.save(new Commit(
-                rootTreeHash,
-                List.of(),
-                "Tester <test@example.com>",
-                Instant.ofEpochSecond(1_700_000_000L),
-                "snapshot"));
+        String commitHash = storage.save(new Commit(rootTreeHash, List.of(), "Tester <test@example.com>",
+                Instant.ofEpochSecond(1_700_000_000L), "snapshot"));
 
         Map<String, String> state = resolver.getCommitState(commitHash);
 
@@ -76,20 +71,18 @@ class MergeResolverTest {
 
     private static String saveCommitWithFiles(ObjectStorage storage, List<String> parents, Map<String, String> files)
             throws IOException {
-        List<Tree.TreeEntry> entries = files.entrySet().stream()
-                .map(entry -> {
-                    try {
-                        String blobHash = storage.save(new Blob(entry.getValue().getBytes()));
-                        return new Tree.TreeEntry("100644", "blob", blobHash, entry.getKey());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .toList();
+        List<Tree.TreeEntry> entries = files.entrySet().stream().map(entry -> {
+            try {
+                String blobHash = storage.save(new Blob(entry.getValue().getBytes()));
+                return new Tree.TreeEntry("100644", "blob", blobHash, entry.getKey());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
 
         String treeHash = storage.save(new Tree(entries));
-        Commit commit = new Commit(treeHash, parents, "Tester <test@example.com>", Instant.ofEpochSecond(1_700_000_000L),
-                "msg");
+        Commit commit = new Commit(treeHash, parents, "Tester <test@example.com>",
+                Instant.ofEpochSecond(1_700_000_000L), "msg");
         return storage.save(commit);
     }
 }

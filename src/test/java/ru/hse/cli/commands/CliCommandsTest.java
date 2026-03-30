@@ -54,7 +54,7 @@ class CliCommandsTest {
         FakeIndexManager index = new FakeIndexManager(tempDir);
         AddCommand command = new AddCommand(index);
 
-        command.execute(new String[] {"a.txt", "b/c.txt"});
+        command.execute(new String[]{"a.txt", "b/c.txt"});
 
         assertEquals(1, index.loadCalls);
         assertEquals(List.of("a.txt", "b/c.txt"), index.addedPaths);
@@ -65,7 +65,7 @@ class CliCommandsTest {
         FakeVcsService vcs = new FakeVcsService();
         CommitCommand command = new CommitCommand(vcs);
 
-        command.execute(new String[] {"-m", "hello"});
+        command.execute(new String[]{"-m", "hello"});
 
         assertEquals(1, vcs.commitCalls);
         assertEquals("hello", vcs.lastCommitMessage);
@@ -77,7 +77,7 @@ class CliCommandsTest {
         vcs.throwOnCommit = true;
         CommitCommand command = new CommitCommand(vcs);
 
-        IOResult io = captureIo(() -> command.execute(new String[] {"-m", "x"}));
+        IOResult io = captureIo(() -> command.execute(new String[]{"-m", "x"}));
 
         assertTrue(io.err.contains("Нет файлов для коммита"));
     }
@@ -98,7 +98,7 @@ class CliCommandsTest {
         FakeVcsService vcs = new FakeVcsService();
         CheckoutCommand command = new CheckoutCommand(vcs);
 
-        command.execute(new String[] {"dev"});
+        command.execute(new String[]{"dev"});
 
         assertEquals(1, vcs.checkoutCalls);
         assertEquals("dev", vcs.lastCheckoutRevision);
@@ -133,7 +133,7 @@ class CliCommandsTest {
         FakeVcsService vcs = new FakeVcsService();
         BranchCommand command = new BranchCommand(vcs);
 
-        command.execute(new String[] {"feature1"});
+        command.execute(new String[]{"feature1"});
 
         assertEquals(1, vcs.createBranchCalls);
         assertEquals("feature1", vcs.lastCreatedBranch);
@@ -144,7 +144,7 @@ class CliCommandsTest {
         FakeVcsService vcs = new FakeVcsService();
         BranchCommand command = new BranchCommand(vcs);
 
-        IOResult io = captureIo(() -> command.execute(new String[] {"feature/test"}));
+        IOResult io = captureIo(() -> command.execute(new String[]{"feature/test"}));
 
         assertTrue(io.err.contains("Ошибка: имя ветки может содержать только буквы"));
         assertEquals(0, vcs.createBranchCalls);
@@ -155,7 +155,7 @@ class CliCommandsTest {
         FakeVcsService vcs = new FakeVcsService();
         BranchCommand command = new BranchCommand(vcs);
 
-        command.execute(new String[] {"-d", "feature1"});
+        command.execute(new String[]{"-d", "feature1"});
 
         assertEquals(1, vcs.deleteBranchCalls);
         assertEquals("feature1", vcs.lastDeletedBranch);
@@ -177,7 +177,7 @@ class CliCommandsTest {
         FakeVcsService vcs = new FakeVcsService();
         MergeCommand command = new MergeCommand(vcs);
 
-        command.execute(new String[] {"develop"});
+        command.execute(new String[]{"develop"});
 
         assertEquals(1, vcs.mergeCalls);
         assertEquals("develop", vcs.lastMergeTarget);
