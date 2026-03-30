@@ -5,6 +5,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Stream;
 
 public class ReferenceManager {
 
@@ -90,5 +93,71 @@ public class ReferenceManager {
             // Detached HEAD (переключились на конкретный коммит)
             Files.writeString(headPath, rev + "\n", StandardCharsets.UTF_8);
         }
+    }
+
+    /**
+     * Создает новую ветку (файл-указатель), указывающую на текущий коммит.
+     */
+    public void createBranch(String branchName) throws IOException {
+        Path branchPath = vcsDir.resolve("refs").resolve("heads").resolve(branchName);
+        if (Files.exists(branchPath)) {
+            throw new IllegalArgumentException("Ветка '" + branchName + "' уже существует.");
+        }
+
+        String currentHash = getCurrentCommitHash();
+        if (currentHash == null) {
+            throw new IllegalStateException("Невозможно создать ветку: в репозитории еще нет коммитов.");
+        }
+
+        // Записываем хеш текущего коммита в файл новой ветки
+        Files.writeString(branchPath, currentHash + "\n", StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Удаляет ветку. Запрещает удалять ту, на которой мы сейчас находимся.
+     */
+    public void deleteBranch(String branchName) throws IOException {
+        Path headPath = vcsDir.resolve("HEAD");
+        String headContent = Files.readString(headPath, StandardCharsets.UTF_8).trim();
+
+        // Проверяем, не пытаемся ли мы отпилить сук, на котором сидим
+        if (headContent.equals("ref: refs/heads/" + branchName)) {
+            throw new IllegalStateException("Невозможно удалить текущую активную ветку '" + branchName + "'.");
+        }
+
+        Path branchPath = vcsDir.resolve("refs").resolve("heads").resolve(branchName);
+        if (!Files.exists(branchPath)) {
+            throw new IllegalArgumentException("Ветка '" + branchName + "' не найдена.");
+        }
+
+        Files.delete(branchPath);
+    }
+
+    /**
+     * Возвращает список всех существующих веток.
+     */
+    public List<String> listBranches() throws IOException {
+        Path headsDir = vcsDir.resolve("refs").resolve("heads");
+        if (!Files.exists(headsDir)) {
+            return Collections.emptyList();
+        }
+
+        try (Stream<Path> stream = Files.list(headsDir)) {
+            return stream.map(p -> p.getFileName().toString()).toList();
+        }
+    }
+
+    /**
+     * Возвращает имя текущей активной ветки (или null, если у нас detached HEAD).
+     */
+    public String getActiveBranch() throws IOException {
+        Path headPath = vcsDir.resolve("HEAD");
+        if (!Files.exists(headPath)) return null;
+
+        String headContent = Files.readString(headPath, StandardCharsets.UTF_8).trim();
+        if (headContent.startsWith("ref: refs/heads/")) {
+            return headContent.substring(16); // отрезаем префикс
+        }
+        return null; // Мы находимся на конкретном коммите, а не на ветке
     }
 }
