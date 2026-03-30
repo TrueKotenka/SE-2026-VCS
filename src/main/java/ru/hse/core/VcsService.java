@@ -287,6 +287,7 @@ public class VcsService {
     public void merge(String targetBranch) throws IOException {
         String headHash = referenceManager.getCurrentCommitHash();
         String targetHash = referenceManager.resolveReference(targetBranch);
+        String branchBeforeMerge = referenceManager.getActiveBranch();
 
         if (headHash == null || targetHash == null) {
             throw new IllegalStateException("Невозможно выполнить merge: одна из веток не существует.");
@@ -303,11 +304,10 @@ public class VcsService {
         if (headHash.equals(lcaHash)) {
             System.out.println("Выполняется Fast-forward слияние...");
             checkout(targetBranch);
-            // Если мы были на ветке master, checkout переключил нас на targetBranch.
-            // Нужно вернуть HEAD на master, но сдвинуть его на targetHash.
-            String activeBranch = referenceManager.getActiveBranch();
-            if (activeBranch != null) {
-                referenceManager.setHead(activeBranch); // возвращаем HEAD
+            // Если merge запускался из ветки, checkout переключил HEAD на targetBranch.
+            // Возвращаем HEAD на исходную ветку и двигаем ее на targetHash.
+            if (branchBeforeMerge != null) {
+                referenceManager.setHead(branchBeforeMerge);
                 referenceManager.updateCurrentBranch(targetHash); // двигаем ветку
             }
             return;
