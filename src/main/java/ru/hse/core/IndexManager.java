@@ -1,8 +1,5 @@
 package ru.hse.core;
 
-import ru.hse.model.Blob;
-import ru.hse.storage.ObjectStorage;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -12,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Stream;
+import ru.hse.model.Blob;
+import ru.hse.storage.ObjectStorage;
 
 public class IndexManager {
 
@@ -20,7 +19,8 @@ public class IndexManager {
     private final ObjectStorage storage;
 
     // TreeMap гарантирует алфавитный порядок путей.
-    // Ключ: относительный путь (например, "src/Main.java"), Значение: SHA-256 хеш блоба.
+    // Ключ: относительный путь (например, "src/Main.java"), Значение: SHA-256 хеш
+    // блоба.
     private final Map<String, String> indexEntries;
 
     public IndexManager(String repoPathStr, ObjectStorage storage) {
@@ -30,9 +30,7 @@ public class IndexManager {
         this.indexEntries = new TreeMap<>();
     }
 
-    /**
-     * Загружает текущее состояние индекса с диска в память.
-     */
+    /** Загружает текущее состояние индекса с диска в память. */
     public void load() throws IOException {
         indexEntries.clear();
         if (!Files.exists(indexPath)) {
@@ -41,7 +39,8 @@ public class IndexManager {
 
         List<String> lines = Files.readAllLines(indexPath, StandardCharsets.UTF_8);
         for (String line : lines) {
-            if (line.isBlank()) continue;
+            if (line.isBlank())
+                continue;
             // Формат строки в файле: <hash> <описание пути>
             String[] parts = line.split(" ", 2);
             if (parts.length == 2) {
@@ -52,9 +51,7 @@ public class IndexManager {
         }
     }
 
-    /**
-     * Сохраняет состояние индекса из памяти на диск.
-     */
+    /** Сохраняет состояние индекса из памяти на диск. */
     public void save() throws IOException {
         StringBuilder sb = new StringBuilder();
         // Благодаря TreeMap записи уже отсортированы
@@ -64,9 +61,7 @@ public class IndexManager {
         Files.writeString(indexPath, sb.toString(), StandardCharsets.UTF_8);
     }
 
-    /**
-     * Аналог `git add`. Добавляет файл или директорию в индекс.
-     */
+    /** Аналог `git add`. Добавляет файл или директорию в индекс. */
     public void add(Path targetPath) throws IOException {
         Path absoluteTarget = targetPath.toAbsolutePath().normalize();
 
@@ -77,8 +72,10 @@ public class IndexManager {
         if (Files.isDirectory(absoluteTarget)) {
             // Если передали папку, обходим все вложенные файлы
             try (Stream<Path> stream = Files.walk(absoluteTarget)) {
-                stream.filter(Files::isRegularFile)
-                        .filter(p -> !p.startsWith(repoRoot.resolve(".myvcs"))) // Игнорируем саму служебную папку VCS!
+                stream.filter(Files::isRegularFile).filter(p -> !p.startsWith(repoRoot.resolve(".myvcs"))) // Игнорируем
+                                                                                                           // саму
+                                                                                                           // служебную
+                                                                                                           // папку VCS!
                         .forEach(this::addSingleFileSilently);
             }
         } else {
@@ -89,30 +86,25 @@ public class IndexManager {
     }
 
     /**
-     * Возвращает неизменяемую копию записей индекса (понадобится для команды commit).
+     * Возвращает неизменяемую копию записей индекса (понадобится для команды
+     * commit).
      */
     public Map<String, String> getEntries() {
         return Map.copyOf(indexEntries);
     }
 
-    /**
-     * Очищает индекс (используется после успешного коммита).
-     */
+    /** Очищает индекс (используется после успешного коммита). */
     public void clear() throws IOException {
         indexEntries.clear();
         save();
     }
 
-    /**
-     * Возвращает корень репозитория
-     */
+    /** Возвращает корень репозитория */
     public Path getRepoRoot() {
         return repoRoot;
     }
 
-    /**
-     * Добавляет файл в индекс
-     */
+    /** Добавляет файл в индекс */
     public void putToIndex(String relativePath, String hash) {
         indexEntries.put(relativePath, hash);
     }

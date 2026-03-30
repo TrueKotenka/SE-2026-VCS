@@ -1,19 +1,17 @@
 package ru.hse.cli.commands;
 
-import ru.hse.core.VcsService;
-import ru.hse.model.Commit;
-import ru.hse.model.CommitNode;
-
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import ru.hse.core.VcsService;
+import ru.hse.model.Commit;
+import ru.hse.model.CommitNode;
 
 public class LogCommand implements Command {
 
     private final VcsService vcsService;
     // Форматтер для красивого отображения времени
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter
-            .ofPattern("EEE MMM dd HH:mm:ss yyyy Z")
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss yyyy Z")
             .withZone(ZoneId.systemDefault());
 
     public LogCommand(VcsService vcsService) {

@@ -1,12 +1,11 @@
 package ru.hse.cli;
 
-import ru.hse.cli.commands.*;
-import ru.hse.core.IndexManager;
-import ru.hse.core.VcsService;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import ru.hse.cli.commands.*;
+import ru.hse.core.IndexManager;
+import ru.hse.core.VcsService;
 
 public class CommandParser {
 
@@ -25,9 +24,7 @@ public class CommandParser {
         commands.put("status", new StatusCommand(vcsService));
     }
 
-    /**
-     * Главный метод, который парсит аргументы и запускает нужную команду.
-     */
+    /** Главный метод, который парсит аргументы и запускает нужную команду. */
     public void parseAndExecute(String[] args) {
         if (args.length == 0) {
             printHelp();

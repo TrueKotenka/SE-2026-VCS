@@ -6,11 +6,10 @@ import java.util.List;
 public record Tree(List<TreeEntry> entries) implements VcsObject {
 
     // Вспомогательный класс для хранения одной строчки в дереве
-    public record TreeEntry(
-            String mode,  // Права доступа, например "100644" для обычного файла
-            String type,  // "blob" или "tree"
-            String hash,  // SHA-256 хеш объекта, на который мы ссылаемся
-            String name   // Имя файла или папки (например, "Main.java")
+    public record TreeEntry(String mode, // Права доступа, например "100644" для обычного файла
+            String type, // "blob" или "tree"
+            String hash, // SHA-256 хеш объекта, на который мы ссылаемся
+            String name // Имя файла или папки (например, "Main.java")
     ) {
         public String toLine() {
             return String.format("%s %s %s\t%s", mode, type, hash, name);

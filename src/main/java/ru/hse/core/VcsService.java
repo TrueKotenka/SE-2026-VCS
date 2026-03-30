@@ -23,9 +23,7 @@ public class VcsService {
         this.referenceManager = referenceManager;
     }
 
-    /**
-     * Выполняет коммит текущего состояния индекса.
-     */
+    /** Выполняет коммит текущего состояния индекса. */
     public String commit(String message, String author) throws IOException {
         indexManager.load();
         Map<String, String> indexEntries = indexManager.getEntries();
@@ -57,13 +55,7 @@ public class VcsService {
         }
 
         // 3. Создаем и сохраняем сам объект коммита
-        Commit commit = new Commit(
-                rootTreeHash,
-                parentHashes,
-                author,
-                Instant.now(),
-                message
-        );
+        Commit commit = new Commit(rootTreeHash, parentHashes, author, Instant.now(), message);
         String commitHash = storage.save(commit);
 
         // 4. Сдвигаем указатель текущей ветки на новый коммит!
@@ -78,9 +70,7 @@ public class VcsService {
 
     // --- Логика построения дерева ---
 
-    /**
-     * Вспомогательный класс для построения графа директорий в памяти.
-     */
+    /** Вспомогательный класс для построения графа директорий в памяти. */
     private static class DirNode {
         // Имя файла -> Хеш блоба
         final Map<String, String> files = new TreeMap<>();
@@ -93,7 +83,7 @@ public class VcsService {
 
         // Шаг 1. Строим дерево директорий в оперативной памяти
         for (Map.Entry<String, String> entry : indexEntries.entrySet()) {
-            String path = entry.getKey();      // Например: "src/main/App.java"
+            String path = entry.getKey(); // Например: "src/main/App.java"
             String blobHash = entry.getValue();
 
             String[] parts = path.split("/");
@@ -140,7 +130,8 @@ public class VcsService {
         }
 
         // Git требует, чтобы записи в дереве были строго отсортированы по имени.
-        // TreeMap нам в этом частично помог, но смешанный список файлов и папок нужно отсортировать:
+        // TreeMap нам в этом частично помог, но смешанный список файлов и папок нужно
+        // отсортировать:
         treeEntries.sort(Comparator.comparing(Tree.TreeEntry::name));
 
         // Создаем объект Tree, сериализуем и сохраняем на диск
@@ -166,14 +157,16 @@ public class VcsService {
             VcsObject obj = ObjectParser.parse(rawData);
 
             if (!(obj instanceof Commit commit)) {
-                throw new IllegalStateException("Повреждение репозитория: объект " + currentHash + " не является коммитом!");
+                throw new IllegalStateException(
+                        "Повреждение репозитория: объект " + currentHash + " не является коммитом!");
             }
 
             // Добавляем в историю
             history.add(new CommitNode(currentHash, commit));
 
             // Переходим к родителю.
-            // Для простой команды log мы пока идем только по первой линии (первому родителю),
+            // Для простой команды log мы пока идем только по первой линии (первому
+            // родителю),
             // игнорируя боковые ветки слияний (merge).
             if (commit.parentHashes().isEmpty()) {
                 currentHash = null; // Мы дошли до самого первого (root) коммита
@@ -186,7 +179,8 @@ public class VcsService {
     }
 
     /**
-     * Восстанавливает состояние файлов из указанной ревизии (имя ветки или хеш коммита).
+     * Восстанавливает состояние файлов из указанной ревизии (имя ветки или хеш
+     * коммита).
      */
     public void checkout(String revision) throws IOException {
         // 1. Находим нужный коммит
@@ -200,7 +194,8 @@ public class VcsService {
 
         Commit commit = (Commit) ObjectParser.parse(rawData);
 
-        // 2. Очищаем рабочую директорию от старых файлов (удаляем только то, что есть в индексе)
+        // 2. Очищаем рабочую директорию от старых файлов (удаляем только то, что есть в
+        // индексе)
         indexManager.load();
         Path repoRoot = indexManager.getRepoRoot();
 
@@ -225,9 +220,13 @@ public class VcsService {
 
     /**
      * Рекурсивно обходит дерево и восстанавливает файлы на диск.
-     * @param treeHash хеш дерева для распаковки
-     * @param currentDir физический путь, куда распаковывать
-     * @param prefixPath префикс пути для записи в индекс (например, "src/main/")
+     *
+     * @param treeHash
+     *            хеш дерева для распаковки
+     * @param currentDir
+     *            физический путь, куда распаковывать
+     * @param prefixPath
+     *            префикс пути для записи в индекс (например, "src/main/")
      */
     private void unpackTree(String treeHash, Path currentDir, String prefixPath) throws IOException {
         if (!Files.exists(currentDir)) {
@@ -335,14 +334,17 @@ public class VcsService {
             String targetFile = targetState.get(path);
 
             // Если файл одинаковый в HEAD и Target, ничего делать не надо
-            if (Objects.equals(headFile, targetFile)) continue;
+            if (Objects.equals(headFile, targetFile))
+                continue;
 
-            // Если файл не менялся у нас (HEAD == Base), но изменился у них (Target) -> берем Target
+            // Если файл не менялся у нас (HEAD == Base), но изменился у них (Target) ->
+            // берем Target
             if (Objects.equals(headFile, baseFile) && !Objects.equals(targetFile, baseFile)) {
                 if (targetFile == null) {
                     // Файл удалили в целевой ветке
                     Files.deleteIfExists(indexManager.getRepoRoot().resolve(path));
-                    // В реальной системе нужно удалить из индекса, для простоты считаем, что пересоберем его
+                    // В реальной системе нужно удалить из индекса, для простоты считаем, что
+                    // пересоберем его
                 } else {
                     // Файл добавили или изменили в целевой ветке
                     restoreFileFromBlob(targetFile, path);
@@ -351,7 +353,8 @@ public class VcsService {
                 continue;
             }
 
-            // Если файл изменился у нас, а у них остался как в базе -> оставляем наш (HEAD), ничего не делаем
+            // Если файл изменился у нас, а у них остался как в базе -> оставляем наш
+            // (HEAD), ничего не делаем
             if (Objects.equals(targetFile, baseFile) && !Objects.equals(headFile, baseFile)) {
                 continue;
             }
@@ -375,12 +378,8 @@ public class VcsService {
             }
 
             // 3. Формируем строку с маркерами конфликта
-            String conflictedText =
-                    "<<<<<<< HEAD\n" +
-                            headContent +
-                            "=======\n" +
-                            targetContent +
-                            ">>>>>>> " + targetBranch + "\n";
+            String conflictedText = "<<<<<<< HEAD\n" + headContent + "=======\n" + targetContent + ">>>>>>> "
+                    + targetBranch + "\n";
 
             // 4. Записываем эту строку прямо в рабочий файл на диске
             Path filePath = indexManager.getRepoRoot().resolve(path);
@@ -395,7 +394,8 @@ public class VcsService {
 
         if (hasConflicts) {
             System.out.println("Автоматическое слияние не удалось. Файлы содержат маркеры конфликтов.");
-            System.out.println("Разрешите конфликты (удалите маркеры), добавьте файлы через 'add' и сделайте 'commit'.");
+            System.out
+                    .println("Разрешите конфликты (удалите маркеры), добавьте файлы через 'add' и сделайте 'commit'.");
         } else {
             System.out.println("Слияние прошло успешно! Сделайте коммит для завершения (MERGE_HEAD создан).");
         }
@@ -410,15 +410,17 @@ public class VcsService {
     }
 
     /**
-     * Сканирует рабочую директорию и возвращает мапу "относительный путь" -> "хеш текущего содержимого".
+     * Сканирует рабочую директорию и возвращает мапу "относительный путь" -> "хеш
+     * текущего содержимого".
      */
     private Map<String, String> scanWorkspace() throws IOException {
         Map<String, String> workspaceState = new TreeMap<>();
         Path repoRoot = indexManager.getRepoRoot();
 
         try (Stream<Path> stream = Files.walk(repoRoot)) {
-            stream.filter(Files::isRegularFile)
-                    .filter(p -> !p.startsWith(repoRoot.resolve(".myvcs"))) // Игнорируем служебную папку
+            stream.filter(Files::isRegularFile).filter(p -> !p.startsWith(repoRoot.resolve(".myvcs"))) // Игнорируем
+                                                                                                       // служебную
+                                                                                                       // папку
                     .forEach(file -> {
                         try {
                             String relativePath = repoRoot.relativize(file).toString().replace("\\", "/");
@@ -442,7 +444,8 @@ public class VcsService {
     }
 
     /**
-     * Выводит статус репозитория: отслеживаемые, неотслеживаемые и измененные файлы.
+     * Выводит статус репозитория: отслеживаемые, неотслеживаемые и измененные
+     * файлы.
      */
     public void status() throws IOException {
         String activeBranch = referenceManager.getActiveBranch();
@@ -455,7 +458,8 @@ public class VcsService {
         // Проверяем, не находимся ли мы в процессе слияния
         Path mergeHeadPath = indexManager.getRepoRoot().resolve(".myvcs").resolve("MERGE_HEAD");
         if (Files.exists(mergeHeadPath)) {
-            System.out.println("\033[33mУ вас есть незавершенное слияние (разрешите конфликты и сделайте commit).\033[0m");
+            System.out.println(
+                    "\033[33mУ вас есть незавершенное слияние (разрешите конфликты и сделайте commit).\033[0m");
         }
         System.out.println();
 
@@ -501,7 +505,8 @@ public class VcsService {
             }
         }
 
-        // СРАВНЕНИЕ 2: Рабочая директория vs Индекс (Изменения, НЕ готовые к коммиту - КРАСНЫЕ)
+        // СРАВНЕНИЕ 2: Рабочая директория vs Индекс (Изменения, НЕ готовые к коммиту -
+        // КРАСНЫЕ)
         for (Map.Entry<String, String> entry : workspaceState.entrySet()) {
             String path = entry.getKey();
             String wsHash = entry.getValue();
@@ -525,9 +530,12 @@ public class VcsService {
         if (hasStaged) {
             System.out.println("Изменения, которые будут включены в коммит:");
             System.out.println("  (используйте 'vcs commit' для фиксации)");
-            for (String p : stagedNew) System.out.println("\033[32m\tновый файл:   " + p + "\033[0m");
-            for (String p : stagedModified) System.out.println("\033[32m\tизменено:     " + p + "\033[0m");
-            for (String p : stagedDeleted) System.out.println("\033[32m\tудалено:      " + p + "\033[0m");
+            for (String p : stagedNew)
+                System.out.println("\033[32m\tновый файл:   " + p + "\033[0m");
+            for (String p : stagedModified)
+                System.out.println("\033[32m\tизменено:     " + p + "\033[0m");
+            for (String p : stagedDeleted)
+                System.out.println("\033[32m\tудалено:      " + p + "\033[0m");
             System.out.println();
         }
 
@@ -535,15 +543,18 @@ public class VcsService {
         if (hasUnstaged) {
             System.out.println("Изменения, которые не добавлены в индекс для коммита:");
             System.out.println("  (используйте 'vcs add <файл>' для добавления)");
-            for (String p : unstagedModified) System.out.println("\033[31m\tизменено:     " + p + "\033[0m");
-            for (String p : unstagedDeleted) System.out.println("\033[31m\tудалено:      " + p + "\033[0m");
+            for (String p : unstagedModified)
+                System.out.println("\033[31m\tизменено:     " + p + "\033[0m");
+            for (String p : unstagedDeleted)
+                System.out.println("\033[31m\tудалено:      " + p + "\033[0m");
             System.out.println();
         }
 
         if (!untracked.isEmpty()) {
             System.out.println("Неотслеживаемые файлы:");
             System.out.println("  (используйте 'vcs add <файл>' чтобы добавить в индекс)");
-            for (String p : untracked) System.out.println("\033[31m\t" + p + "\033[0m");
+            for (String p : untracked)
+                System.out.println("\033[31m\t" + p + "\033[0m");
             System.out.println();
         }
 

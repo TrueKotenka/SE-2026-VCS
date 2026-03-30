@@ -18,8 +18,8 @@ public class ReferenceManager {
     }
 
     /**
-     * Читает файл HEAD и возвращает хеш текущего коммита.
-     * Если репозиторий пуст (веток еще нет), возвращает null.
+     * Читает файл HEAD и возвращает хеш текущего коммита. Если репозиторий пуст
+     * (веток еще нет), возвращает null.
      */
     public String getCurrentCommitHash() throws IOException {
         Path headPath = vcsDir.resolve("HEAD");
@@ -42,12 +42,14 @@ public class ReferenceManager {
             }
         }
 
-        // Если у нас "detached HEAD" (мы сделали checkout конкретного коммита, а не ветки)
+        // Если у нас "detached HEAD" (мы сделали checkout конкретного коммита, а не
+        // ветки)
         return headContent;
     }
 
     /**
-     * Обновляет текущую ветку (на которую указывает HEAD), записывая в нее новый хеш коммита.
+     * Обновляет текущую ветку (на которую указывает HEAD), записывая в нее новый
+     * хеш коммита.
      */
     public void updateCurrentBranch(String newCommitHash) throws IOException {
         Path headPath = vcsDir.resolve("HEAD");
@@ -66,9 +68,7 @@ public class ReferenceManager {
         }
     }
 
-    /**
-     * Превращает имя ветки или хеш в реальный хеш коммита.
-     */
+    /** Превращает имя ветки или хеш в реальный хеш коммита. */
     public String resolveReference(String rev) throws IOException {
         Path branchPath = vcsDir.resolve("refs").resolve("heads").resolve(rev);
         if (Files.exists(branchPath)) {
@@ -79,9 +79,7 @@ public class ReferenceManager {
         return rev;
     }
 
-    /**
-     * Переключает HEAD на указанную ветку или хеш.
-     */
+    /** Переключает HEAD на указанную ветку или хеш. */
     public void setHead(String rev) throws IOException {
         Path headPath = vcsDir.resolve("HEAD");
         Path branchPath = vcsDir.resolve("refs").resolve("heads").resolve(rev);
@@ -152,7 +150,8 @@ public class ReferenceManager {
      */
     public String getActiveBranch() throws IOException {
         Path headPath = vcsDir.resolve("HEAD");
-        if (!Files.exists(headPath)) return null;
+        if (!Files.exists(headPath))
+            return null;
 
         String headContent = Files.readString(headPath, StandardCharsets.UTF_8).trim();
         if (headContent.startsWith("ref: refs/heads/")) {
