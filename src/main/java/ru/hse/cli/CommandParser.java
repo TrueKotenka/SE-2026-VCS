@@ -19,6 +19,9 @@ public class CommandParser {
         commands.put("commit", new CommitCommand(vcsService));
         commands.put("log", new LogCommand(vcsService));
         commands.put("checkout", new CheckoutCommand(vcsService));
+        commands.put("branch", new BranchCommand(vcsService));
+        commands.put("merge", new MergeCommand(vcsService));
+        commands.put("status", new StatusCommand(vcsService));
     }
 
     /** Главный метод, который парсит аргументы и запускает нужную команду. */
